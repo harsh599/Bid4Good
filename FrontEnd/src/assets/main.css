@@ -1,0 +1,57 @@
+/* @import './base.css'; */
+
+
+* {
+  box-sizing: border-box;
+  font-family: Verdana, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#app {
+  margin: 0 auto;
+  padding: 0.5rem;
+  background-color: #fff !important;
+  font-weight: normal;
+}
+/*e8f1f8*/
+.form-background{
+  background-color: #f5f8fb;
+}
+
+.left-border{
+  border-left: 4px solid #007bff; 
+  padding-left: 10px
+}
+
+.top-header{
+  background-color: #007bff; 
+  color: #fff; 
+  padding: 10px;
+  border-top-left-radius: 5px !important;
+  border-top-right-radius: 5px !important;
+}
+
+.rounded {
+  border-radius: 20px !important;
+}
+
+.card-body {
+  border-radius: 4px !important;
+}
+
+.form-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cross-mark {
+  color: red;
+}

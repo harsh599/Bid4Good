@@ -1,0 +1,1 @@
+export const validation = "Details Saved Successfully!";
