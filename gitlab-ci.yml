@@ -1,0 +1,126 @@
+stages:
+  - build
+  - test
+  - quality
+  - deploy
+  - post-deploy
+
+backend-build:
+  stage: build
+  tags:
+    - ugrad 
+  image: node:latest
+  script:
+    - ls
+    - echo "Started building backend application."
+    - cd server
+    - ls
+    - npm install
+    - npm run build
+    - ls
+    - echo "Backend application has been built successfully."
+  artifacts: 
+    when: on_success
+    paths:
+      - prod
+
+frontend-build:
+  stage: build
+  tags:
+    - ugrad
+  image: node:latest
+  script:
+    - ls
+    - echo "Started building backend application."
+    - cd FrontEnd
+    - npm install
+    - npm run build
+    - echo "Backend application has been built successfully."
+  artifacts:
+    when: on_success
+    paths:
+      - FrontEnd/dist
+
+backend-test:
+  stage: test
+  tags:
+    - ugrad
+  image: node:latest
+  script:
+    - ls
+    - echo "Backend application test started."
+    - cd server
+    - npm install
+    - npm run build
+    - npm run test
+    - echo "Backend application Tested successfully."
+  artifacts:
+    when: on_success
+    paths:
+      - server/prod
+
+
+quality:
+  stage: quality
+  image: node:latest
+  tags:
+    - ugrad
+  script:
+    - cd server
+    - npm install eslint --save-dev
+    - npm run lint
+  artifacts:
+    reports: 
+      codequality: server/eslint-report.json
+
+backend-publish-deploy:
+  stage: deploy
+  image: node:latest
+  tags:
+    - ugrad
+  script:
+    - ls
+    - cd server
+    - chmod og-rwx ${VM_PRIVATE_KEY}
+    - cd ../
+    - zip -r server.zip server
+    - ls
+    - chmod og-rwx ${VM_PRIVATE_KEY}
+    - scp -r -o StrictHostKeyChecking=no -i ${VM_PRIVATE_KEY} server.zip "csci5308vm5@csci5308vm5.research.cs.dal.ca:server.zip"
+    - ssh -i ${VM_PRIVATE_KEY} csci5308vm5@csci5308vm5.research.cs.dal.ca "sh ./stop_backend.sh; sh ./start_backendOut.sh"
+  only:
+    refs:
+      - master
+
+
+
+frontend-publish-deploy:
+  stage: deploy
+  tags:
+    - ugrad
+  script:
+    - ls
+    - zip -r FrontEnd.zip FrontEnd
+    - chmod og-rwx ${VM_PRIVATE_KEY}
+    - scp -r -o StrictHostKeyChecking=no -i ${VM_PRIVATE_KEY} FrontEnd.zip "csci5308vm5@csci5308vm5.research.cs.dal.ca:FrontEnd.zip"
+    - ssh -i ${VM_PRIVATE_KEY} csci5308vm5@csci5308vm5.research.cs.dal.ca "sh ./start_frontendOut.sh"
+  dependencies:
+    - frontend-build
+  only:
+    refs:
+      - master
+
+
+start-cron:
+  stage: post-deploy
+  image: node:latest
+  tags:
+    - ugrad
+  script:
+    - sleep 20s
+    - chmod og-rwx ${VM_PRIVATE_KEY}
+    - ssh -i ${VM_PRIVATE_KEY} csci5308vm5@csci5308vm5.research.cs.dal.ca "sh ./startCron.sh"
+  only:
+    refs:
+      - master
+
